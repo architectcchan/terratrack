@@ -9,12 +9,19 @@ export const createAccountSchema = z.object({
   state: z.string().length(2).default("WA"),
   zip: z.string().min(5, "ZIP code is required").max(10),
   phone: z.string().max(20).nullish(),
-  email: z.string().email("Invalid email").max(255).nullish(),
-  website: z.string().max(500).nullish(),
+  email: z.preprocess(
+    (v) => (v === "" ? null : v),
+    z.string().email("Invalid email").max(255).nullable().optional(),
+  ),
+  website: z.preprocess(
+    (v) => (v === "" ? null : v),
+    z.string().url("Invalid URL").max(500).nullable().optional(),
+  ),
   licenseNumber: z.string().max(100).nullish(),
   licenseType: z
     .enum(["retailer", "microbusiness", "delivery", "consumption_lounge", "other"])
     .default("retailer"),
+  licenseExpiration: z.string().nullish(),
   status: z
     .enum(["prospect", "sample_sent", "active", "at_risk", "dormant", "churned"])
     .default("prospect"),
@@ -27,6 +34,7 @@ export const createAccountSchema = z.object({
     .default("cod"),
   notes: z.string().nullish(),
   tags: z.array(z.string()).nullish(),
+  googlePlaceId: z.string().max(255).nullish(),
   latitude: z.string().nullish(),
   longitude: z.string().nullish(),
 });
