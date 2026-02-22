@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Mic, Square, Play, Trash2, X, Search } from "lucide-react";
+import { Mic, Square, Play, Pause, Trash2, X, Search } from "lucide-react";
 import { addDays, addWeeks, addMonths, format } from "date-fns";
 import type { ProductOption } from "./visit-log-types";
 import { cn } from "@/lib/utils";
@@ -47,6 +47,9 @@ export function StepNotes({
   const chunksRef = useRef<Blob[]>([]);
   const timerRef = useRef<ReturnType<typeof setInterval>>();
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const recordingTimeRef = useRef(0);
+  const recognitionRef = useRef<{ stop: () => void } | null>(null);
+  const transcriptRef = useRef("");
 
   useEffect(() => {
     return () => {
@@ -63,32 +66,70 @@ export function StepNotes({
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const recorder = new MediaRecorder(stream);
       chunksRef.current = [];
+      transcriptRef.current = "";
+      recordingTimeRef.current = 0;
+
+      // Best-effort speech-to-text via browser SpeechRecognition API
+      const SpeechRecognitionAPI =
+        (typeof window !== "undefined" &&
+          ((window as Window & { SpeechRecognition?: new () => SpeechRecognition }).SpeechRecognition ||
+            (window as Window & { webkitSpeechRecognition?: new () => SpeechRecognition }).webkitSpeechRecognition)) ||
+        null;
+
+      if (SpeechRecognitionAPI) {
+        const recognition = new SpeechRecognitionAPI();
+        recognition.continuous = true;
+        recognition.interimResults = false;
+        recognition.onresult = (e: SpeechRecognitionEvent) => {
+          for (let i = e.resultIndex; i < e.results.length; i++) {
+            if (e.results[i].isFinal) {
+              transcriptRef.current += e.results[i][0].transcript + " ";
+            }
+          }
+        };
+        recognition.start();
+        recognitionRef.current = recognition;
+      }
+
       recorder.ondataavailable = (e) => {
         if (e.data.size > 0) chunksRef.current.push(e.data);
       };
       recorder.onstop = () => {
         const blob = new Blob(chunksRef.current, { type: "audio/webm" });
-        onUpdateVoiceNote(recordingTime, blob);
+        // Use ref value — not the stale state variable captured at start
+        onUpdateVoiceNote(recordingTimeRef.current, blob);
         stream.getTracks().forEach((t) => t.stop());
+
+        const transcript = transcriptRef.current.trim();
+        if (transcript) {
+          onUpdateNotes(notes ? `${notes}\n\n${transcript}` : transcript);
+        }
       };
       recorder.start();
       mediaRecorderRef.current = recorder;
       setIsRecording(true);
       setRecordingTime(0);
-      timerRef.current = setInterval(
-        () => setRecordingTime((t) => t + 1),
-        1000
-      );
+      timerRef.current = setInterval(() => {
+        setRecordingTime((t) => {
+          const next = t + 1;
+          recordingTimeRef.current = next;
+          return next;
+        });
+      }, 1000);
     } catch {
-      // microphone not available
+      // microphone not available or permission denied
     }
-  }, [onUpdateVoiceNote, recordingTime]);
+  }, [onUpdateVoiceNote, onUpdateNotes, notes]);
 
   const stopRecording = useCallback(() => {
+    if (recognitionRef.current) {
+      try { recognitionRef.current.stop(); } catch { /* ignore */ }
+      recognitionRef.current = null;
+    }
+    clearInterval(timerRef.current);
     if (mediaRecorderRef.current?.state === "recording") {
       mediaRecorderRef.current.stop();
     }
-    clearInterval(timerRef.current);
     setIsRecording(false);
   }, []);
 
@@ -171,7 +212,7 @@ export function StepNotes({
           <label className="text-sm font-medium text-gray-700 mb-2 block">
             Voice Note
           </label>
-          {!voiceNoteDuration && !isRecording ? (
+          {voiceNoteDuration === null && !isRecording ? (
             <button
               type="button"
               onClick={startRecording}
@@ -199,13 +240,13 @@ export function StepNotes({
                 type="button"
                 onClick={playVoiceNote}
                 className="p-1.5 rounded-md hover:bg-gray-200 transition-colors"
+                aria-label={isPlaying ? "Pause" : "Play"}
               >
-                <Play
-                  className={cn(
-                    "h-4 w-4",
-                    isPlaying ? "text-[#1B4332]" : "text-gray-500"
-                  )}
-                />
+                {isPlaying ? (
+                  <Pause className="h-4 w-4 text-[#1B4332]" />
+                ) : (
+                  <Play className="h-4 w-4 text-gray-500" />
+                )}
               </button>
               <button
                 type="button"

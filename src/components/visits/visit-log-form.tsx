@@ -343,7 +343,7 @@ export function VisitLogForm() {
   }, []);
 
   return (
-    <div className="flex flex-col h-[calc(100vh-5rem)] md:h-[calc(100vh-6rem)] max-w-lg mx-auto">
+    <div className="flex flex-col h-[calc(100vh-5rem)] md:h-[calc(100vh-6rem)] w-full max-w-2xl mx-auto">
       <div className="shrink-0 flex items-center gap-3 pb-3 border-b border-gray-100">
         <button
           type="button"
