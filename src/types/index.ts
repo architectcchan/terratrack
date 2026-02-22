@@ -445,6 +445,257 @@ export const PRODUCT_CATEGORY_CONFIG: Record<
   },
 };
 
+// ─── Orders / Pipeline ───────────────────────────────────────────────────────
+
+export type OrderStage =
+  | "lead"
+  | "quote_sent"
+  | "confirmed"
+  | "processing"
+  | "ready_for_delivery"
+  | "delivered"
+  | "paid"
+  | "lost"
+  | "cancelled";
+
+export type OrderSource =
+  | "in_person"
+  | "phone"
+  | "text"
+  | "email"
+  | "leaflink"
+  | "growflow"
+  | "nabis"
+  | "distru"
+  | "other";
+
+export type PaymentStatus = "unpaid" | "partial" | "paid" | "overdue";
+
+export type LossReason =
+  | "price"
+  | "competitor"
+  | "out_of_stock"
+  | "no_response"
+  | "quality"
+  | "shelf_full"
+  | "other";
+
+export interface PipelineLineItem {
+  productId: string;
+  productName: string;
+  quantity: number;
+  unitPrice: string;
+  discountPercent: string;
+  lineTotal: string;
+}
+
+export interface PipelineOrder {
+  id: string;
+  accountId: string;
+  accountName: string | null;
+  repId: string | null;
+  repFirstName: string | null;
+  repLastName: string | null;
+  repAvatarUrl: string | null;
+  stage: OrderStage;
+  source: OrderSource | null;
+  expectedCloseDate: string | null;
+  total: string | null;
+  subtotal: string | null;
+  discountAmount: string | null;
+  taxAmount: string | null;
+  paymentTerms: string | null;
+  paymentStatus: string;
+  linkedVisitId: string | null;
+  linkedSampleId: string | null;
+  lossReason: LossReason | null;
+  notes: string | null;
+  createdAt: string;
+  updatedAt: string;
+  stageEnteredAt: string | null;
+  lineItems: PipelineLineItem[] | null;
+  lineItemCount: number;
+}
+
+export interface OrderDetailLineItem {
+  id: string;
+  orderId: string;
+  productId: string;
+  productName: string | null;
+  productSku: string | null;
+  productCategory: string | null;
+  quantity: number;
+  unitPrice: string;
+  discountPercent: string | null;
+  lineTotal: string;
+  notes: string | null;
+}
+
+export interface OrderStageHistoryEntry {
+  id: string;
+  fromStage: string | null;
+  toStage: string;
+  changedBy: string;
+  changedByFirstName: string | null;
+  changedByLastName: string | null;
+  changedByAvatarUrl: string | null;
+  changedAt: string;
+  notes: string | null;
+}
+
+export interface OrderDetail extends Omit<PipelineOrder, "lineItems"> {
+  actualCloseDate: string | null;
+  deliveryDate: string | null;
+  lineItems: OrderDetailLineItem[];
+  stageHistory: OrderStageHistoryEntry[];
+}
+
+export const STAGE_CONFIG: Record<
+  OrderStage,
+  {
+    label: string;
+    bgClass: string;
+    headerClass: string;
+    badgeClass: string;
+    dotClass: string;
+  }
+> = {
+  lead: {
+    label: "Lead",
+    bgClass: "bg-blue-50",
+    headerClass: "bg-blue-100 border-blue-200",
+    badgeClass: "bg-blue-100 text-blue-800",
+    dotClass: "bg-blue-400",
+  },
+  quote_sent: {
+    label: "Quote Sent",
+    bgClass: "bg-purple-50",
+    headerClass: "bg-purple-100 border-purple-200",
+    badgeClass: "bg-purple-100 text-purple-800",
+    dotClass: "bg-purple-400",
+  },
+  confirmed: {
+    label: "Confirmed",
+    bgClass: "bg-amber-50",
+    headerClass: "bg-amber-100 border-amber-200",
+    badgeClass: "bg-amber-100 text-amber-800",
+    dotClass: "bg-amber-400",
+  },
+  processing: {
+    label: "Processing",
+    bgClass: "bg-orange-50",
+    headerClass: "bg-orange-100 border-orange-200",
+    badgeClass: "bg-orange-100 text-orange-800",
+    dotClass: "bg-orange-400",
+  },
+  ready_for_delivery: {
+    label: "Ready for Delivery",
+    bgClass: "bg-teal-50",
+    headerClass: "bg-teal-100 border-teal-200",
+    badgeClass: "bg-teal-100 text-teal-800",
+    dotClass: "bg-teal-400",
+  },
+  delivered: {
+    label: "Delivered",
+    bgClass: "bg-green-50",
+    headerClass: "bg-green-100 border-green-200",
+    badgeClass: "bg-green-100 text-green-800",
+    dotClass: "bg-green-400",
+  },
+  paid: {
+    label: "Paid",
+    bgClass: "bg-emerald-50",
+    headerClass: "bg-emerald-100 border-emerald-200",
+    badgeClass: "bg-emerald-100 text-emerald-800",
+    dotClass: "bg-emerald-500",
+  },
+  lost: {
+    label: "Lost",
+    bgClass: "bg-red-50",
+    headerClass: "bg-red-100 border-red-200",
+    badgeClass: "bg-red-100 text-red-800",
+    dotClass: "bg-red-400",
+  },
+  cancelled: {
+    label: "Cancelled",
+    bgClass: "bg-gray-50",
+    headerClass: "bg-gray-100 border-gray-200",
+    badgeClass: "bg-gray-100 text-gray-600",
+    dotClass: "bg-gray-400",
+  },
+};
+
+export const SOURCE_CONFIG: Record<
+  OrderSource,
+  { label: string; icon: string }
+> = {
+  in_person: { label: "In Person", icon: "🤝" },
+  phone: { label: "Phone", icon: "📞" },
+  text: { label: "Text", icon: "💬" },
+  email: { label: "Email", icon: "📧" },
+  leaflink: { label: "LeafLink", icon: "🍃" },
+  growflow: { label: "GrowFlow", icon: "📊" },
+  nabis: { label: "Nabis", icon: "🌿" },
+  distru: { label: "Distru", icon: "📦" },
+  other: { label: "Other", icon: "❓" },
+};
+
+export const PAYMENT_STATUS_CONFIG: Record<
+  PaymentStatus,
+  { label: string; className: string }
+> = {
+  unpaid: {
+    label: "Unpaid",
+    className: "bg-red-100 text-red-800 border-red-200",
+  },
+  partial: {
+    label: "Partial",
+    className: "bg-amber-100 text-amber-800 border-amber-200",
+  },
+  paid: {
+    label: "Paid",
+    className: "bg-emerald-100 text-emerald-800 border-emerald-200",
+  },
+  overdue: {
+    label: "Overdue",
+    className: "bg-red-200 text-red-900 border-red-300",
+  },
+};
+
+export const LOSS_REASON_OPTIONS = [
+  { value: "price", label: "Price Too High" },
+  { value: "competitor", label: "Went with Competitor" },
+  { value: "out_of_stock", label: "Out of Stock" },
+  { value: "no_response", label: "No Response" },
+  { value: "quality", label: "Quality Concerns" },
+  { value: "shelf_full", label: "Shelf Full" },
+  { value: "other", label: "Other" },
+] as const;
+
+export const ACTIVE_STAGES: OrderStage[] = [
+  "lead",
+  "quote_sent",
+  "confirmed",
+  "processing",
+  "ready_for_delivery",
+  "delivered",
+  "paid",
+];
+
+export const CLOSED_STAGES: OrderStage[] = ["lost", "cancelled"];
+
+export const STAGE_ORDER: OrderStage[] = [
+  "lead",
+  "quote_sent",
+  "confirmed",
+  "processing",
+  "ready_for_delivery",
+  "delivered",
+  "paid",
+  "lost",
+  "cancelled",
+];
+
 export const STRAIN_TYPE_CONFIG: Record<
   StrainType,
   { label: string; className: string }

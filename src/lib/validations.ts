@@ -87,3 +87,108 @@ export const updateProductSchema = createProductSchema.partial();
 
 export type CreateProductInput = z.infer<typeof createProductSchema>;
 export type UpdateProductInput = z.infer<typeof updateProductSchema>;
+
+// ─── Orders ──────────────────────────────────────────────────────────────────
+
+export const orderLineItemSchema = z.object({
+  productId: z.string().uuid("Product is required"),
+  quantity: z.number().int().positive("Quantity must be positive"),
+  unitPrice: z.string().min(1, "Unit price is required"),
+  discountPercent: z.string().default("0"),
+  notes: z.string().nullish(),
+});
+
+export const createOrderSchema = z.object({
+  accountId: z.string().uuid("Account is required"),
+  repId: z.string().uuid().nullish(),
+  stage: z
+    .enum([
+      "lead",
+      "quote_sent",
+      "confirmed",
+      "processing",
+      "ready_for_delivery",
+      "delivered",
+      "paid",
+      "lost",
+      "cancelled",
+    ])
+    .default("lead"),
+  source: z
+    .enum([
+      "in_person",
+      "phone",
+      "text",
+      "email",
+      "leaflink",
+      "growflow",
+      "nabis",
+      "distru",
+      "other",
+    ])
+    .default("in_person"),
+  expectedCloseDate: z.string().nullish(),
+  paymentTerms: z
+    .enum(["cod", "net_15", "net_30", "net_45", "custom"])
+    .default("cod"),
+  linkedVisitId: z.string().uuid().nullish(),
+  linkedSampleId: z.string().uuid().nullish(),
+  notes: z.string().nullish(),
+  lineItems: z
+    .array(orderLineItemSchema)
+    .min(1, "At least one line item is required"),
+});
+
+export const moveOrderSchema = z.object({
+  stage: z.enum([
+    "lead",
+    "quote_sent",
+    "confirmed",
+    "processing",
+    "ready_for_delivery",
+    "delivered",
+    "paid",
+    "lost",
+    "cancelled",
+  ]),
+  lossReason: z
+    .enum([
+      "price",
+      "competitor",
+      "out_of_stock",
+      "no_response",
+      "quality",
+      "shelf_full",
+      "other",
+    ])
+    .nullish(),
+  notes: z.string().nullish(),
+});
+
+export const updateOrderSchema = z.object({
+  expectedCloseDate: z.string().nullish(),
+  actualCloseDate: z.string().nullish(),
+  deliveryDate: z.string().nullish(),
+  paymentStatus: z.enum(["unpaid", "partial", "paid", "overdue"]).optional(),
+  paymentTerms: z
+    .enum(["cod", "net_15", "net_30", "net_45", "custom"])
+    .optional(),
+  notes: z.string().nullish(),
+  source: z
+    .enum([
+      "in_person",
+      "phone",
+      "text",
+      "email",
+      "leaflink",
+      "growflow",
+      "nabis",
+      "distru",
+      "other",
+    ])
+    .optional(),
+});
+
+export type CreateOrderInput = z.infer<typeof createOrderSchema>;
+export type MoveOrderInput = z.infer<typeof moveOrderSchema>;
+export type UpdateOrderInput = z.infer<typeof updateOrderSchema>;
