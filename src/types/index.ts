@@ -6,6 +6,203 @@ export type AccountStatus =
   | "dormant"
   | "churned";
 
+export interface AccountDetail {
+  id: string;
+  orgId: string;
+  name: string;
+  dbaName: string | null;
+  addressLine1: string;
+  addressLine2: string | null;
+  city: string;
+  state: string;
+  zip: string;
+  latitude: string | null;
+  longitude: string | null;
+  phone: string | null;
+  email: string | null;
+  website: string | null;
+  licenseNumber: string | null;
+  licenseType: string | null;
+  licenseExpiration: string | null;
+  status: AccountStatus;
+  revenueTier: RevenueTier;
+  chainId: string | null;
+  chainName: string | null;
+  chainStoreCount: number | null;
+  assignedRepId: string | null;
+  repFirstName: string | null;
+  repLastName: string | null;
+  repAvatarUrl: string | null;
+  paymentTerms: string | null;
+  notes: string | null;
+  tags: string[] | null;
+  googlePlaceId: string | null;
+  createdAt: string;
+  updatedAt: string;
+  totalRevenue: string;
+  ordersThisMonth: number;
+  totalVisits: number;
+  totalOrders: number;
+  lastVisitDate: string | null;
+  lastOrderDate: string | null;
+  avgOrderValue: string;
+}
+
+export interface ContactRow {
+  id: string;
+  accountId: string;
+  orgId: string;
+  firstName: string;
+  lastName: string;
+  role: string | null;
+  roleLabel: string | null;
+  isPrimaryDecisionMaker: boolean | null;
+  phone: string | null;
+  email: string | null;
+  preferredContactMethod: string | null;
+  bestVisitDays: string[] | null;
+  bestVisitTimes: string | null;
+  notes: string | null;
+  isActive: boolean | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface OrderRow {
+  id: string;
+  createdAt: string;
+  stage: string;
+  source: string | null;
+  total: string;
+  subtotal: string | null;
+  discountAmount: string | null;
+  paymentStatus: string;
+  paymentTerms: string | null;
+  deliveryDate: string | null;
+  expectedCloseDate: string | null;
+  notes: string | null;
+  repFirstName: string | null;
+  repLastName: string | null;
+  lineItemsSummary: Array<{
+    productName: string;
+    quantity: number;
+    lineTotal: string;
+  }> | null;
+  lineItemCount: number;
+}
+
+export interface VisitRow {
+  id: string;
+  checkInTime: string;
+  checkOutTime: string | null;
+  visitType: string | null;
+  outcome: string | null;
+  notes: string | null;
+  aiRawTranscript: string | null;
+  photos: string[] | null;
+  buyerFeedbackLook: string | null;
+  buyerFeedbackSmell: string | null;
+  buyerFeedbackPackaging: string | null;
+  buyerFeedbackPricing: string | null;
+  shelfAvailability: string | null;
+  competitorBrandsNoted: string[] | null;
+  nextFollowUpDate: string | null;
+  nextFollowUpNotes: string | null;
+  repFirstName: string | null;
+  repLastName: string | null;
+  repAvatarUrl: string | null;
+  contactsMetNames: Array<{ firstName: string; lastName: string }> | null;
+}
+
+export interface SampleRow {
+  id: string;
+  droppedOffDate: string;
+  productsSampled: Array<{
+    productName: string;
+    quantity: number;
+    unitSize?: string;
+  }>;
+  status: string;
+  feedbackDueDate: string | null;
+  feedbackNotes: string | null;
+  followUpCount: number | null;
+  lastFollowUpDate: string | null;
+  convertedOrderId: string | null;
+  notes: string | null;
+  createdAt: string;
+  repFirstName: string | null;
+  repLastName: string | null;
+  recipientFirstName: string | null;
+  recipientLastName: string | null;
+}
+
+export interface CompetitiveBrandRow {
+  brand_name: string;
+  times_noted: number;
+  last_seen: string | null;
+}
+
+export type ActivityItem =
+  | ({
+      type: "visit";
+      id: string;
+      timestamp: string;
+      repFirstName: string | null;
+      repLastName: string | null;
+      visitType: string | null;
+      outcome: string | null;
+      notes: string | null;
+      buyerFeedbackLook: string | null;
+      buyerFeedbackSmell: string | null;
+      buyerFeedbackPackaging: string | null;
+      buyerFeedbackPricing: string | null;
+      shelfAvailability: string | null;
+      competitorBrandsNoted: string[] | null;
+      aiRawTranscript: string | null;
+      photos: string[] | null;
+      checkOutTime: string | null;
+    })
+  | ({
+      type: "order";
+      id: string;
+      timestamp: string;
+      repFirstName: string | null;
+      repLastName: string | null;
+      stage: string;
+      total: string;
+      paymentStatus: string;
+      source: string | null;
+      notes: string | null;
+      lineItemsSummary: Array<{
+        productName: string;
+        quantity: number;
+      }> | null;
+    })
+  | ({
+      type: "sample";
+      id: string;
+      timestamp: string;
+      repFirstName: string | null;
+      repLastName: string | null;
+      productsSampled: unknown;
+      status: string;
+      feedbackNotes: string | null;
+      droppedOffDate: string;
+    })
+  | ({
+      type: "task";
+      id: string;
+      timestamp: string;
+      repFirstName: string | null;
+      repLastName: string | null;
+      title: string;
+      status: string;
+      priority: string | null;
+      dueDate: string;
+      description: string | null;
+      taskType: string | null;
+    });
+
 export type RevenueTier = "A" | "B" | "C" | "D" | "unranked";
 
 export interface AccountListItem {
