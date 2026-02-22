@@ -293,3 +293,180 @@ export const TIER_CONFIG: Record<
   D: { className: "bg-gray-100 text-gray-800 border-gray-200" },
   unranked: { className: "", variant: "outline" },
 };
+
+// ─── Products ────────────────────────────────────────────────────────────────
+
+export type ProductCategory =
+  | "flower"
+  | "pre_roll"
+  | "edible"
+  | "vape"
+  | "concentrate"
+  | "topical"
+  | "tincture"
+  | "accessory"
+  | "other";
+
+export type StrainType = "indica" | "sativa" | "hybrid" | "cbd" | "blend";
+
+export type ProductStatus =
+  | "active"
+  | "limited"
+  | "out_of_stock"
+  | "discontinued";
+
+export interface ProductListItem {
+  id: string;
+  orgId: string;
+  name: string;
+  sku: string;
+  category: ProductCategory | null;
+  subcategory: string | null;
+  strainName: string | null;
+  strainType: StrainType | null;
+  thcPercentMin: string | null;
+  thcPercentMax: string | null;
+  cbdPercentMin: string | null;
+  cbdPercentMax: string | null;
+  unitSize: string;
+  wholesalePrice: string;
+  msrp: string | null;
+  availableInventory: number | null;
+  status: ProductStatus | null;
+  growType: string | null;
+  turnaroundTime: string | null;
+  minimumOrder: string | null;
+  coaUrl: string | null;
+  imageUrl: string | null;
+  description: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ProductsApiResponse {
+  products: ProductListItem[];
+  total: number;
+  page: number;
+  totalPages: number;
+}
+
+export const PRODUCT_STATUS_CONFIG: Record<
+  ProductStatus,
+  { label: string; className: string; dotClass: string }
+> = {
+  active: {
+    label: "Active",
+    className: "bg-emerald-100 text-emerald-800 border-emerald-200",
+    dotClass: "bg-emerald-500",
+  },
+  limited: {
+    label: "Limited",
+    className: "bg-amber-100 text-amber-800 border-amber-200",
+    dotClass: "bg-amber-500",
+  },
+  out_of_stock: {
+    label: "Out of Stock",
+    className: "bg-red-100 text-red-800 border-red-200",
+    dotClass: "bg-red-500",
+  },
+  discontinued: {
+    label: "Discontinued",
+    className: "bg-gray-100 text-gray-700 border-gray-200",
+    dotClass: "bg-gray-400",
+  },
+};
+
+export const PRODUCT_CATEGORY_CONFIG: Record<
+  ProductCategory,
+  { label: string; bg: string; textColor: string; emoji: string; badgeClass: string }
+> = {
+  flower: {
+    label: "Flower",
+    bg: "bg-emerald-50",
+    textColor: "text-emerald-600",
+    emoji: "🌿",
+    badgeClass: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  },
+  pre_roll: {
+    label: "Pre-Roll",
+    bg: "bg-lime-50",
+    textColor: "text-lime-600",
+    emoji: "🌱",
+    badgeClass: "bg-lime-50 text-lime-700 border-lime-200",
+  },
+  edible: {
+    label: "Edible",
+    bg: "bg-orange-50",
+    textColor: "text-orange-600",
+    emoji: "🍬",
+    badgeClass: "bg-orange-50 text-orange-700 border-orange-200",
+  },
+  vape: {
+    label: "Vape",
+    bg: "bg-sky-50",
+    textColor: "text-sky-600",
+    emoji: "💨",
+    badgeClass: "bg-sky-50 text-sky-700 border-sky-200",
+  },
+  concentrate: {
+    label: "Concentrate",
+    bg: "bg-purple-50",
+    textColor: "text-purple-600",
+    emoji: "💎",
+    badgeClass: "bg-purple-50 text-purple-700 border-purple-200",
+  },
+  topical: {
+    label: "Topical",
+    bg: "bg-teal-50",
+    textColor: "text-teal-600",
+    emoji: "🧴",
+    badgeClass: "bg-teal-50 text-teal-700 border-teal-200",
+  },
+  tincture: {
+    label: "Tincture",
+    bg: "bg-pink-50",
+    textColor: "text-pink-600",
+    emoji: "💧",
+    badgeClass: "bg-pink-50 text-pink-700 border-pink-200",
+  },
+  accessory: {
+    label: "Accessory",
+    bg: "bg-gray-50",
+    textColor: "text-gray-600",
+    emoji: "🔧",
+    badgeClass: "bg-gray-50 text-gray-700 border-gray-200",
+  },
+  other: {
+    label: "Other",
+    bg: "bg-slate-50",
+    textColor: "text-slate-600",
+    emoji: "📦",
+    badgeClass: "bg-slate-50 text-slate-700 border-slate-200",
+  },
+};
+
+export const STRAIN_TYPE_CONFIG: Record<
+  StrainType,
+  { label: string; className: string }
+> = {
+  indica: {
+    label: "Indica",
+    className: "bg-purple-100 text-purple-800 border-purple-200",
+  },
+  sativa: {
+    label: "Sativa",
+    className: "bg-yellow-100 text-yellow-800 border-yellow-200",
+  },
+  hybrid: {
+    label: "Hybrid",
+    className: "bg-green-100 text-green-800 border-green-200",
+  },
+  cbd: {
+    label: "CBD",
+    className: "bg-blue-100 text-blue-800 border-blue-200",
+  },
+  blend: {
+    label: "Blend",
+    className: "bg-pink-100 text-pink-800 border-pink-200",
+  },
+};

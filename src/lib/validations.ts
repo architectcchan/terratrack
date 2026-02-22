@@ -40,3 +40,50 @@ export const createAccountSchema = z.object({
 });
 
 export type CreateAccountInput = z.infer<typeof createAccountSchema>;
+
+// ─── Products ────────────────────────────────────────────────────────────────
+
+export const createProductSchema = z.object({
+  name: z.string().min(1, "Name is required").max(255),
+  sku: z.string().min(1, "SKU is required").max(50),
+  category: z
+    .enum([
+      "flower",
+      "pre_roll",
+      "edible",
+      "vape",
+      "concentrate",
+      "topical",
+      "tincture",
+      "accessory",
+      "other",
+    ])
+    .nullish(),
+  subcategory: z.string().max(100).nullish(),
+  status: z
+    .enum(["active", "limited", "out_of_stock", "discontinued"])
+    .default("active"),
+  strainName: z.string().max(100).nullish(),
+  strainType: z
+    .enum(["indica", "sativa", "hybrid", "cbd", "blend"])
+    .nullish(),
+  description: z.string().nullish(),
+  thcPercentMin: z.string().nullish(),
+  thcPercentMax: z.string().nullish(),
+  cbdPercentMin: z.string().nullish(),
+  cbdPercentMax: z.string().nullish(),
+  growType: z.string().max(100).nullish(),
+  turnaroundTime: z.string().max(100).nullish(),
+  minimumOrder: z.string().max(100).nullish(),
+  wholesalePrice: z.string().min(1, "Wholesale price is required"),
+  msrp: z.string().nullish(),
+  availableInventory: z.string().nullish(),
+  unitSize: z.string().min(1, "Unit size is required").max(50),
+  imageUrl: z.string().url().max(500).nullish(),
+  coaUrl: z.string().url().max(500).nullish(),
+});
+
+export const updateProductSchema = createProductSchema.partial();
+
+export type CreateProductInput = z.infer<typeof createProductSchema>;
+export type UpdateProductInput = z.infer<typeof updateProductSchema>;
