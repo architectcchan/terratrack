@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
-import { Bell, Search, LogOut, Settings, User } from "lucide-react";
+import { Search, LogOut, Settings, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -13,6 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { NotificationBell } from "@/components/layout/notification-panel";
 
 const pageTitles: Record<string, string> = {
   "/dashboard": "Dashboard",
@@ -72,11 +73,7 @@ export function Topbar({ user }: TopbarProps) {
       {/* Right actions */}
       <div className="ml-auto flex items-center gap-2">
         {/* Notifications */}
-        <Button variant="ghost" size="icon" className="relative h-9 w-9">
-          <Bell className="h-4 w-4 text-gray-500" />
-          <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-[#D4A843]" />
-          <span className="sr-only">Notifications</span>
-        </Button>
+        <NotificationBell />
 
         {/* User dropdown */}
         <DropdownMenu>

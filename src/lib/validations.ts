@@ -192,3 +192,57 @@ export const updateOrderSchema = z.object({
 export type CreateOrderInput = z.infer<typeof createOrderSchema>;
 export type MoveOrderInput = z.infer<typeof moveOrderSchema>;
 export type UpdateOrderInput = z.infer<typeof updateOrderSchema>;
+
+// ─── Tasks ────────────────────────────────────────────────────────────────────
+
+export const createTaskSchema = z.object({
+  title: z.string().min(1, "Title is required").max(255),
+  taskType: z
+    .enum([
+      "follow_up_visit",
+      "reorder_check",
+      "send_menu",
+      "budtender_training",
+      "sample_follow_up",
+      "vendor_day_prep",
+      "manager_assigned",
+      "custom",
+    ])
+    .nullish(),
+  description: z.string().nullish(),
+  accountId: z.string().uuid().nullish(),
+  assignedTo: z.string().uuid("Assigned user is required"),
+  dueDate: z.string().min(1, "Due date is required"),
+  priority: z.enum(["low", "medium", "high", "urgent"]).default("medium"),
+  linkedVisitId: z.string().uuid().nullish(),
+  linkedOrderId: z.string().uuid().nullish(),
+  linkedSampleId: z.string().uuid().nullish(),
+});
+
+export const updateTaskSchema = z.object({
+  title: z.string().min(1).max(255).optional(),
+  taskType: z
+    .enum([
+      "follow_up_visit",
+      "reorder_check",
+      "send_menu",
+      "budtender_training",
+      "sample_follow_up",
+      "vendor_day_prep",
+      "manager_assigned",
+      "custom",
+    ])
+    .nullish(),
+  description: z.string().nullish(),
+  accountId: z.string().uuid().nullish(),
+  assignedTo: z.string().uuid().optional(),
+  dueDate: z.string().optional(),
+  priority: z.enum(["low", "medium", "high", "urgent"]).optional(),
+  status: z.enum(["open", "in_progress", "completed", "cancelled"]).optional(),
+  linkedVisitId: z.string().uuid().nullish(),
+  linkedOrderId: z.string().uuid().nullish(),
+  linkedSampleId: z.string().uuid().nullish(),
+});
+
+export type CreateTaskInput = z.infer<typeof createTaskSchema>;
+export type UpdateTaskInput = z.infer<typeof updateTaskSchema>;
