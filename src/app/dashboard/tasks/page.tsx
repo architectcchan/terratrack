@@ -160,10 +160,17 @@ function getPriorityBadge(priority: TaskPriority) {
   );
 }
 
+function parseDueDate(dateStr: string): Date {
+  // API returns dates as ISO timestamps (e.g. "2026-02-16T16:00:00.000Z")
+  // because Drizzle's date() column maps to JS Date objects.
+  // Slice to "YYYY-MM-DD" then parse as local time to avoid UTC offset issues.
+  return new Date(dateStr.slice(0, 10) + "T00:00:00");
+}
+
 function formatRelativeDate(dateStr: string): { label: string; isOverdue: boolean } {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  const due = new Date(dateStr + "T00:00:00");
+  const due = parseDueDate(dateStr);
   const diffMs = due.getTime() - today.getTime();
   const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
 
@@ -197,7 +204,7 @@ function categorizeTasks(tasks: Task[]) {
       continue;
     }
 
-    const due = new Date(task.dueDate + "T00:00:00");
+    const due = parseDueDate(task.dueDate);
     if (due < today) {
       overdue.push(task);
     } else if (due < endOfToday) {
@@ -466,7 +473,7 @@ function TaskCard({ task, isHighlighted, onComplete, onUpdate, completing, orgUs
               )}
               <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500">
                 <span>Type: <span className="font-medium text-gray-700">{getTaskTypeLabel(task.taskType)}</span></span>
-                <span>Due: <span className="font-medium text-gray-700">{new Date(task.dueDate + "T00:00:00").toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })}</span></span>
+                <span>Due: <span className="font-medium text-gray-700">{parseDueDate(task.dueDate).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })}</span></span>
                 <span>Status: <span className="font-medium text-gray-700 capitalize">{task.status.replace("_", " ")}</span></span>
                 {task.completedAt && (
                   <span>Completed: <span className="font-medium text-gray-700">{new Date(task.completedAt).toLocaleDateString()}</span></span>
@@ -585,44 +592,57 @@ function AddTaskModal({ open, onClose, onCreated, orgUsers, accounts, currentUse
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    console.log("[CreateTask] handleSubmit fired", { title, dueDate, assignedTo, priority, taskType, accountId });
+
     const errs: Record<string, string> = {};
     if (!title.trim()) errs.title = "Title is required";
     if (!dueDate) errs.dueDate = "Due date is required";
     if (!assignedTo) errs.assignedTo = "Must assign to a user";
 
     if (Object.keys(errs).length > 0) {
+      console.log("[CreateTask] Validation failed:", errs);
       setErrors(errs);
       return;
     }
+
+    const payload = {
+      title: title.trim(),
+      taskType: taskType || null,
+      description: description.trim() || null,
+      accountId: accountId || null,
+      assignedTo,
+      dueDate,
+      priority,
+      linkedVisitId: linkedVisitId || null,
+      linkedOrderId: linkedOrderId || null,
+      linkedSampleId: linkedSampleId || null,
+    };
+    console.log("[CreateTask] Sending payload:", payload);
 
     setSaving(true);
     try {
       const res = await fetch("/api/tasks", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: title.trim(),
-          taskType: taskType || null,
-          description: description.trim() || null,
-          accountId: accountId || null,
-          assignedTo,
-          dueDate,
-          priority,
-          linkedVisitId: linkedVisitId || null,
-          linkedOrderId: linkedOrderId || null,
-          linkedSampleId: linkedSampleId || null,
-        }),
+        body: JSON.stringify(payload),
       });
 
+      console.log("[CreateTask] API response status:", res.status);
+
       if (res.ok) {
-        const { task } = await res.json();
-        onCreated(task);
+        const data = await res.json();
+        console.log("[CreateTask] Task created:", data.task);
+        onCreated(data.task);
         resetForm();
         onClose();
       } else {
         const data = await res.json();
+        console.error("[CreateTask] API error:", data);
         setErrors({ general: data.error || "Failed to create task" });
       }
+    } catch (err) {
+      console.error("[CreateTask] Fetch error:", err);
+      setErrors({ general: "Network error — please try again" });
     } finally {
       setSaving(false);
     }
@@ -1157,16 +1177,14 @@ export default function TasksPage() {
         )}
       </div>
 
-      {session?.user && (
-        <AddTaskModal
-          open={showAddModal}
-          onClose={() => setShowAddModal(false)}
-          onCreated={handleCreated}
-          orgUsers={orgUsers}
-          accounts={accounts}
-          currentUserId={session.user.id}
-        />
-      )}
+      <AddTaskModal
+        open={showAddModal}
+        onClose={() => setShowAddModal(false)}
+        onCreated={handleCreated}
+        orgUsers={orgUsers}
+        accounts={accounts}
+        currentUserId={session?.user?.id ?? ""}
+      />
     </div>
   );
 }

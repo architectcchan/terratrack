@@ -130,7 +130,7 @@ export async function POST(request: NextRequest) {
 
     const data = result.data;
 
-    const [task] = await db
+    const [inserted] = await db
       .insert(tasks)
       .values({
         orgId: session.user.orgId,
@@ -147,7 +147,37 @@ export async function POST(request: NextRequest) {
         linkedOrderId: data.linkedOrderId ?? null,
         linkedSampleId: data.linkedSampleId ?? null,
       })
-      .returning();
+      .returning({ id: tasks.id });
+
+    // Re-fetch with joins so the client gets accountName, assigneeFirstName, etc.
+    const [task] = await db
+      .select({
+        id: tasks.id,
+        title: tasks.title,
+        taskType: tasks.taskType,
+        description: tasks.description,
+        dueDate: tasks.dueDate,
+        priority: tasks.priority,
+        status: tasks.status,
+        completedAt: tasks.completedAt,
+        accountId: tasks.accountId,
+        accountName: accounts.name,
+        assignedTo: tasks.assignedTo,
+        assigneeFirstName: users.firstName,
+        assigneeLastName: users.lastName,
+        assigneeAvatarUrl: users.avatarUrl,
+        linkedVisitId: tasks.linkedVisitId,
+        linkedOrderId: tasks.linkedOrderId,
+        linkedSampleId: tasks.linkedSampleId,
+        createdBy: tasks.createdBy,
+        createdAt: tasks.createdAt,
+        updatedAt: tasks.updatedAt,
+      })
+      .from(tasks)
+      .leftJoin(accounts, eq(tasks.accountId, accounts.id))
+      .leftJoin(users, eq(tasks.assignedTo, users.id))
+      .where(eq(tasks.id, inserted.id))
+      .limit(1);
 
     return NextResponse.json({ task }, { status: 201 });
   } catch (error) {
