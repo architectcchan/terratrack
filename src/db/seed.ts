@@ -383,7 +383,7 @@ async function seed() {
     "order_placed","reorder_confirmed","sample_left","follow_up_needed","no_decision","order_placed","follow_up_needed","reorder_confirmed","sample_left","no_decision",
   ];
 
-  const insertedVisits = [];
+  const insertedVisits: (typeof schema.visits.$inferSelect)[] = [];
   for (let i = 0; i < 30; i++) {
     const acc = activeAccounts[i % activeAccounts.length];
     const rep = acc.assignedRepId === jake.id ? jake : maya;

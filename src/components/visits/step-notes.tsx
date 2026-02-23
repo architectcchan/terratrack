@@ -45,7 +45,7 @@ export function StepNotes({
   const [productSearch, setProductSearch] = useState("");
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
-  const timerRef = useRef<ReturnType<typeof setInterval>>();
+  const timerRef = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const recordingTimeRef = useRef(0);
   const recognitionRef = useRef<{ stop: () => void } | null>(null);

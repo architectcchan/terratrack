@@ -10,14 +10,7 @@ import {
   Kanban,
   Plus,
   MoreHorizontal,
-  MapPin,
-  FlaskConical,
   CheckSquare,
-  Package,
-  Route,
-  Calendar,
-  BarChart3,
-  Users,
   Settings,
   LogOut,
 } from "lucide-react";
@@ -30,15 +23,15 @@ import {
 } from "@/components/ui/sheet";
 
 const moreNavItems = [
-  { label: "Visits", href: "/dashboard/visits", icon: MapPin },
-  { label: "Samples", href: "/dashboard/samples", icon: FlaskConical },
   { label: "Tasks", href: "/dashboard/tasks", icon: CheckSquare },
-  { label: "Products", href: "/dashboard/products", icon: Package },
-  { label: "Routes", href: "/dashboard/routes", icon: Route },
-  { label: "Events", href: "/dashboard/events", icon: Calendar },
-  { label: "Reports", href: "/dashboard/reports", icon: BarChart3 },
-  { label: "Team", href: "/dashboard/team", icon: Users },
   { label: "Settings", href: "/dashboard/settings", icon: Settings },
+  // Hidden for now — add back later:
+  // { label: "Samples", href: "/dashboard/samples", icon: FlaskConical },
+  // { label: "Products", href: "/dashboard/products", icon: Package },
+  // { label: "Routes", href: "/dashboard/routes", icon: Route },
+  // { label: "Events", href: "/dashboard/events", icon: Calendar },
+  // { label: "Reports", href: "/dashboard/reports", icon: BarChart3 },
+  // { label: "Team", href: "/dashboard/team", icon: Users },
 ];
 
 export function MobileNav() {

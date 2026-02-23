@@ -9,13 +9,7 @@ import {
   Building2,
   Kanban,
   MapPin,
-  FlaskConical,
   CheckSquare,
-  Package,
-  Route,
-  Calendar,
-  BarChart3,
-  Users,
   Settings,
   LogOut,
   ChevronsLeft,
@@ -41,22 +35,18 @@ const mainNavItems: NavItem[] = [
   { label: "Accounts", href: "/dashboard/accounts", icon: Building2 },
   { label: "Pipeline", href: "/dashboard/pipeline", icon: Kanban },
   { label: "Visits", href: "/dashboard/visits", icon: MapPin },
-  { label: "Samples", href: "/dashboard/samples", icon: FlaskConical },
   { label: "Tasks", href: "/dashboard/tasks", icon: CheckSquare },
-  { label: "Products", href: "/dashboard/products", icon: Package },
-  { label: "Routes", href: "/dashboard/routes", icon: Route },
-  { label: "Events", href: "/dashboard/events", icon: Calendar },
+  // Hidden for now — add back later:
+  // { label: "Samples", href: "/dashboard/samples", icon: FlaskConical },
+  // { label: "Products", href: "/dashboard/products", icon: Package },
+  // { label: "Routes", href: "/dashboard/routes", icon: Route },
+  // { label: "Events", href: "/dashboard/events", icon: Calendar },
 ];
 
-const secondaryNavItems: NavItem[] = [
-  {
-    label: "Reports",
-    href: "/dashboard/reports",
-    icon: BarChart3,
-    adminOnly: true,
-  },
-  { label: "Team", href: "/dashboard/team", icon: Users, adminOnly: true },
-];
+// const secondaryNavItems: NavItem[] = [
+//   { label: "Reports", href: "/dashboard/reports", icon: BarChart3, adminOnly: true },
+//   { label: "Team", href: "/dashboard/team", icon: Users, adminOnly: true },
+// ];
 
 const bottomNavItems: NavItem[] = [
   { label: "Settings", href: "/dashboard/settings", icon: Settings },
@@ -79,9 +69,6 @@ export function Sidebar({ user }: SidebarProps) {
     if (href === "/dashboard") return pathname === "/dashboard";
     return pathname.startsWith(href);
   };
-
-  const isManagerOrAdmin =
-    user.role === "admin" || user.role === "sales_manager";
 
   const roleLabel =
     user.role === "admin"
@@ -143,8 +130,8 @@ export function Sidebar({ user }: SidebarProps) {
             ))}
           </ul>
 
-          {/* Separator + secondary */}
-          {isManagerOrAdmin && (
+          {/* Separator + secondary (Reports, Team — hidden for now) */}
+          {/* {isManagerOrAdmin && (
             <>
               <div className="my-3 border-t border-white/10" />
               <ul className="space-y-1">
@@ -158,7 +145,7 @@ export function Sidebar({ user }: SidebarProps) {
                 ))}
               </ul>
             </>
-          )}
+          )} */}
 
           <div className="my-3 border-t border-white/10" />
           <ul className="space-y-1">

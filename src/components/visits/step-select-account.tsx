@@ -26,7 +26,7 @@ export function StepSelectAccount({
 }: StepSelectAccountProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [localQuery, setLocalQuery] = useState(searchQuery);
-  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   useEffect(() => {
     const timer = setTimeout(() => inputRef.current?.focus(), 100);
