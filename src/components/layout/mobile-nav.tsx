@@ -8,11 +8,12 @@ import {
   LayoutDashboard,
   Building2,
   Kanban,
-  Plus,
+  Package,
   MoreHorizontal,
   CheckSquare,
   Settings,
   LogOut,
+  MapPin,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -23,11 +24,11 @@ import {
 } from "@/components/ui/sheet";
 
 const moreNavItems = [
+  { label: "Visits", href: "/dashboard/visits", icon: MapPin },
   { label: "Tasks", href: "/dashboard/tasks", icon: CheckSquare },
   { label: "Settings", href: "/dashboard/settings", icon: Settings },
   // Hidden for now — add back later:
   // { label: "Samples", href: "/dashboard/samples", icon: FlaskConical },
-  // { label: "Products", href: "/dashboard/products", icon: Package },
   // { label: "Routes", href: "/dashboard/routes", icon: Route },
   // { label: "Events", href: "/dashboard/events", icon: Calendar },
   // { label: "Reports", href: "/dashboard/reports", icon: BarChart3 },
@@ -75,17 +76,18 @@ export function MobileNav() {
             <span className="text-[10px] font-medium">Accounts</span>
           </Link>
 
-          {/* Log Visit FAB */}
+          {/* Products */}
           <Link
-            href="/dashboard/visits"
-            className="flex flex-col items-center gap-0.5"
+            href="/dashboard/products"
+            className={cn(
+              "flex flex-col items-center gap-0.5 px-3 py-1",
+              isActive("/dashboard/products")
+                ? "text-[#1B4332]"
+                : "text-gray-400",
+            )}
           >
-            <div className="-mt-5 flex h-12 w-12 items-center justify-center rounded-full bg-[#D4A843] shadow-lg shadow-[#D4A843]/30 transition-transform active:scale-95">
-              <Plus className="h-6 w-6 text-white" />
-            </div>
-            <span className="text-[10px] font-medium text-[#D4A843]">
-              Visit
-            </span>
+            <Package className="h-5 w-5" />
+            <span className="text-[10px] font-medium">Products</span>
           </Link>
 
           {/* Pipeline */}

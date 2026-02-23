@@ -8,7 +8,7 @@ import {
   LayoutDashboard,
   Building2,
   Kanban,
-  MapPin,
+  Package,
   CheckSquare,
   Settings,
   LogOut,
@@ -34,7 +34,7 @@ const mainNavItems: NavItem[] = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { label: "Accounts", href: "/dashboard/accounts", icon: Building2 },
   { label: "Pipeline", href: "/dashboard/pipeline", icon: Kanban },
-  { label: "Visits", href: "/dashboard/visits", icon: MapPin },
+  { label: "Products", href: "/dashboard/products", icon: Package },
   { label: "Tasks", href: "/dashboard/tasks", icon: CheckSquare },
   // Hidden for now — add back later:
   // { label: "Samples", href: "/dashboard/samples", icon: FlaskConical },
