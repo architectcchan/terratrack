@@ -108,7 +108,7 @@ async function AccountDetailData({ id }: { id: string }) {
 
   return (
     <AccountDetailClient
-      initialAccount={account as AccountDetail}
+      initialAccount={account as unknown as AccountDetail}
       reps={reps}
       currentUserId={session.user.id}
     />
