@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, Fragment } from "react";
 import Link from "next/link";
 import { Plus, ChevronUp, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -173,9 +173,8 @@ export function OrdersTab({ accountId }: OrdersTabProps) {
               </thead>
               <tbody>
                 {sorted.map((order) => (
-                  <>
+                  <Fragment key={order.id}>
                     <tr
-                      key={order.id}
                       className="border-b border-gray-100 cursor-pointer hover:bg-gray-50"
                       onClick={() =>
                         setExpandedId(expandedId === order.id ? null : order.id)
@@ -283,7 +282,7 @@ export function OrdersTab({ accountId }: OrdersTabProps) {
                         </td>
                       </tr>
                     )}
-                  </>
+                  </Fragment>
                 ))}
               </tbody>
             </table>
