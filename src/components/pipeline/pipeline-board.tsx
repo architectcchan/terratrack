@@ -17,7 +17,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, TrendingUp, ShoppingCart, BarChart3, Clock } from "lucide-react";
+import {
+  Plus,
+  TrendingUp,
+  ShoppingCart,
+  BarChart3,
+  Clock,
+  Settings2,
+} from "lucide-react";
 import { toast } from "sonner";
 import {
   type PipelineOrder,
@@ -30,6 +37,8 @@ import { OrderCard } from "./order-card";
 import { LostDialog } from "./lost-dialog";
 import { CreateOrderSheet } from "./create-order-sheet";
 import { OrderDetailSheet } from "./order-detail-sheet";
+import { PipelineColumnSettings } from "./pipeline-column-settings";
+import type { PipelineSettings } from "@/app/api/org/pipeline-settings/route";
 import { cn } from "@/lib/utils";
 
 interface PendingMove {
@@ -96,10 +105,41 @@ export function PipelineBoard() {
 
   const [showClosedSection, setShowClosedSection] = useState(false);
 
+  const [pipelineStages, setPipelineStages] =
+    useState<PipelineSettings | null>(null);
+  const [columnSettingsOpen, setColumnSettingsOpen] = useState(false);
+
   const searchRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const customOrder =
+    pipelineStages?.order?.length
+      ? (pipelineStages.order.filter((s) =>
+          ACTIVE_STAGES.includes(s as OrderStage),
+        ) as OrderStage[])
+      : null;
+  const displayStages: OrderStage[] =
+    customOrder && customOrder.length > 0 ? customOrder : ACTIVE_STAGES;
+
+  const getColumnLabel = (stage: OrderStage) =>
+    pipelineStages?.labels?.[stage] ?? STAGE_CONFIG[stage].label;
 
   useEffect(() => {
     setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    async function fetchPipelineSettings() {
+      try {
+        const res = await fetch("/api/org/pipeline-settings");
+        if (res.ok) {
+          const data = await res.json();
+          setPipelineStages(data.pipelineStages ?? null);
+        }
+      } catch {
+        // Use defaults if fetch fails
+      }
+    }
+    fetchPipelineSettings();
   }, []);
 
   const fetchOrders = useCallback(async () => {
@@ -285,7 +325,7 @@ export function PipelineBoard() {
   }
 
   return (
-    <div className="flex flex-col h-full min-h-0">
+    <div className="flex flex-col h-full min-h-0 min-w-0">
       {/* Header */}
       <div className="px-6 pt-6 pb-4 flex-shrink-0">
         <div className="flex items-center justify-between mb-5">
@@ -296,13 +336,24 @@ export function PipelineBoard() {
               active orders
             </p>
           </div>
-          <Button
-            onClick={() => setCreateSheetOpen(true)}
-            className="bg-[#D4A843] hover:bg-[#c49a38] text-white gap-2"
-          >
-            <Plus className="h-4 w-4" />
-            Create Order
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-9 w-9 border-gray-200"
+              onClick={() => setColumnSettingsOpen(true)}
+              title="Configure columns"
+            >
+              <Settings2 className="h-4 w-4" />
+            </Button>
+            <Button
+              onClick={() => setCreateSheetOpen(true)}
+              className="bg-[#D4A843] hover:bg-[#c49a38] text-white gap-2"
+            >
+              <Plus className="h-4 w-4" />
+              Create Order
+            </Button>
+          </div>
         </div>
 
         {/* Summary bar */}
@@ -426,9 +477,12 @@ export function PipelineBoard() {
 
       {/* Board */}
       {loading ? (
-        <div className="flex gap-4 px-6 pb-6 overflow-x-auto flex-1">
-          {ACTIVE_STAGES.map((s) => (
-            <div key={s} className="flex-shrink-0 w-64">
+        <div className="flex-1 min-h-0 min-w-0 px-6 pb-6 overflow-x-auto overflow-y-hidden snap-x snap-mandatory md:snap-none flex gap-4">
+          {displayStages.map((s) => (
+            <div
+              key={s}
+              className="flex-shrink-0 min-w-[280px] w-[280px] snap-start"
+            >
               <Skeleton className="h-10 mb-2" />
               <Skeleton className="h-32 mb-2" />
               <Skeleton className="h-24" />
@@ -437,10 +491,11 @@ export function PipelineBoard() {
         </div>
       ) : (
         <DragDropContext onDragEnd={onDragEnd}>
-          <div className="flex-1 overflow-auto px-6 pb-6 min-h-0">
+          <div className="flex-1 min-h-0 min-w-0 max-w-full px-6 pb-6 flex flex-col overflow-hidden">
+            <div className="pipeline-board-scroll flex-1 min-h-0 min-w-0 w-full max-w-full overflow-x-scroll overflow-y-auto overscroll-x-contain snap-x snap-mandatory md:snap-none">
             {/* Active columns */}
             <div className="flex gap-3 min-w-max pb-4">
-              {ACTIVE_STAGES.map((stage) => {
+              {displayStages.map((stage) => {
                 const cfg = STAGE_CONFIG[stage];
                 const stageOrders = getStageOrders(stage);
                 const columnTotal = stageOrders.reduce(
@@ -451,7 +506,7 @@ export function PipelineBoard() {
                 return (
                   <div
                     key={stage}
-                    className="flex flex-col w-64 flex-shrink-0"
+                    className="flex flex-col min-w-[280px] w-[280px] flex-shrink-0 snap-start"
                   >
                     {/* Column header */}
                     <div
@@ -462,7 +517,7 @@ export function PipelineBoard() {
                     >
                       <div className="flex items-center justify-between">
                         <span className="font-semibold text-sm text-gray-800">
-                          {cfg.label}
+                          {getColumnLabel(stage)}
                         </span>
                         <span className="text-xs bg-white/60 rounded-full px-1.5 py-0.5 font-medium text-gray-700">
                           {stageOrders.length}
@@ -566,7 +621,10 @@ export function PipelineBoard() {
                     );
 
                     return (
-                      <div key={stage} className="flex flex-col w-64 flex-shrink-0">
+                      <div
+                        key={stage}
+                        className="flex flex-col min-w-[280px] w-[280px] flex-shrink-0 snap-start"
+                      >
                         <div
                           className={cn(
                             "rounded-t-lg border px-3 py-2.5 flex-shrink-0",
@@ -642,6 +700,7 @@ export function PipelineBoard() {
                 </div>
               )}
             </div>
+            </div>
           </div>
         </DragDropContext>
       )}
@@ -668,6 +727,13 @@ export function PipelineBoard() {
         open={detailSheetOpen}
         onClose={() => setDetailSheetOpen(false)}
         onUpdated={() => fetchOrders()}
+      />
+
+      <PipelineColumnSettings
+        open={columnSettingsOpen}
+        onClose={() => setColumnSettingsOpen(false)}
+        pipelineStages={pipelineStages}
+        onSaved={setPipelineStages}
       />
     </div>
   );

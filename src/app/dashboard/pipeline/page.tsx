@@ -11,7 +11,7 @@ export default async function PipelinePage() {
   if (!session?.user) redirect("/login");
 
   return (
-    <div className="h-full flex flex-col min-h-0">
+    <div className="h-full flex flex-col min-h-0 min-w-0 w-full overflow-x-hidden">
       <PipelineBoard />
     </div>
   );

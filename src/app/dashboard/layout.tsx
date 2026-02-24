@@ -32,7 +32,7 @@ export default async function DashboardLayout({
           <Sidebar user={user} />
           <DashboardShell>
             <Topbar user={user} />
-            <main className="flex-1 overflow-y-auto p-4 pb-20 md:p-6 md:pb-6">
+            <main className="flex-1 min-w-0 overflow-y-auto overflow-x-hidden p-4 pb-20 md:p-6 md:pb-6">
               {children}
             </main>
           </DashboardShell>
